@@ -171,11 +171,55 @@ const MovieMutations = {
 	},
 };
 
+const MovieQueries = {
+	getAllMovies: async (
+		parent,
+		{ searchByDescription, searchByName },
+		contextValue
+	) => {
+		try {
+			const movies = await prisma.movie.findMany({
+				where: {
+					description: {
+						search: searchByDescription,
+					},
+					movieName: {
+						search: searchByName,
+					},
+				},
+				include: {
+					movieOwner: true,
+				},
+			});
+
+			return movies;
+		} catch (error) {
+			return error;
+		}
+	},
+	getMovieById: async (parent, { movieId }, contextValue) => {
+		try {
+			const movie = await prisma.movie.findUnique({
+				where: {
+					id: parseInt(movieId),
+				},
+				include: {
+					movieOwner: true,
+				},
+			});
+
+			if (!movie) throw new GraphQLError("Movie not found");
+
+			return movie;
+		} catch (error) {
+			return error;
+		}
+	},
+};
+
 export const resolvers = {
 	Query: {
-		_empty: () => {
-			return "";
-		},
+		...MovieQueries,
 	},
 	Mutation: {
 		...UserMutations,
