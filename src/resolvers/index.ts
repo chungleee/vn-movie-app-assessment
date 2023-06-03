@@ -83,6 +83,32 @@ const UserMutations = {
 	},
 };
 
+const MovieMutations = {
+	createMovie: async (parent, args, { user }) => {
+		try {
+			if (!user) {
+				throw new GraphQLError("Please log in");
+			}
+
+			const newMovie = await prisma.movie.create({
+				data: {
+					...args,
+					releaseDate: new Date(args.releaseDate),
+					movieOwner: {
+						connect: {
+							id: user.id,
+						},
+					},
+				},
+			});
+
+			return newMovie;
+		} catch (error) {
+			return error;
+		}
+	},
+};
+
 export const resolvers = {
 	Query: {
 		_empty: () => {
@@ -91,5 +117,6 @@ export const resolvers = {
 	},
 	Mutation: {
 		...UserMutations,
+		...MovieMutations,
 	},
 };

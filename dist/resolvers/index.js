@@ -55,7 +55,6 @@ const UserMutations = {
                     password: true,
                 },
             });
-            console.log(await argon2.verify(password, oldPassword));
             if (await argon2.verify(password, oldPassword)) {
                 const updatedUser = await prisma.user.update({
                     where: {
@@ -65,12 +64,35 @@ const UserMutations = {
                         password: await argon2.hash(newPassword),
                     },
                 });
-                console.log("updatedUser: ", updatedUser);
                 return updatedUser;
             }
             else {
                 throw new GraphQLError("Old password incorrect");
             }
+        }
+        catch (error) {
+            return error;
+        }
+    },
+};
+const MovieMutations = {
+    createMovie: async (parent, args, { user }) => {
+        try {
+            if (!user) {
+                throw new GraphQLError("Please log in");
+            }
+            const newMovie = await prisma.movie.create({
+                data: {
+                    ...args,
+                    releaseDate: new Date(args.releaseDate),
+                    movieOwner: {
+                        connect: {
+                            id: user.id,
+                        },
+                    },
+                },
+            });
+            return newMovie;
         }
         catch (error) {
             return error;
@@ -85,5 +107,6 @@ export const resolvers = {
     },
     Mutation: {
         ...UserMutations,
+        ...MovieMutations,
     },
 };

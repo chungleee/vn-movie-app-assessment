@@ -33,5 +33,7 @@ export const typeDefs = `#graphql
     login(email: String, password: String): RegisteredOrLoginUser!
 
     updatePassword(oldPassword: String, newPassword:String): User
+
+    createMovie(movieName: String, description: String, directorName: String, releaseDate: String): Movie!
   }
 `;
