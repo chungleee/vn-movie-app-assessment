@@ -25,7 +25,7 @@ export const typeDefs = `#graphql
 
   type Query {
     _empty:String
-    getAllMovies(searchByName: String, searchByDescription: String): [Movie]!
+    getAllMovies(searchByName: String, searchByDescription: String): [Movie]
     getMovieById(movieId: String): Movie!
   }
 
