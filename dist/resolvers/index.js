@@ -42,6 +42,40 @@ const UserMutations = {
             return error;
         }
     },
+    updatePassword: async (parent, { oldPassword, newPassword }, contextValue) => {
+        try {
+            if (!contextValue.user) {
+                throw new GraphQLError("Please log in");
+            }
+            const { password } = await prisma.user.findUnique({
+                where: {
+                    id: contextValue.user.id,
+                },
+                select: {
+                    password: true,
+                },
+            });
+            console.log(await argon2.verify(password, oldPassword));
+            if (await argon2.verify(password, oldPassword)) {
+                const updatedUser = await prisma.user.update({
+                    where: {
+                        id: contextValue.user.id,
+                    },
+                    data: {
+                        password: await argon2.hash(newPassword),
+                    },
+                });
+                console.log("updatedUser: ", updatedUser);
+                return updatedUser;
+            }
+            else {
+                throw new GraphQLError("Old password incorrect");
+            }
+        }
+        catch (error) {
+            return error;
+        }
+    },
 };
 export const resolvers = {
     Query: {
