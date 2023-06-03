@@ -31,5 +31,7 @@ export const typeDefs = `#graphql
     register(username: String, email: String, password: String): RegisteredOrLoginUser!
     
     login(email: String, password: String): RegisteredOrLoginUser!
+
+    updatePassword(oldPassword: String, newPassword:String): User
   }
 `;
