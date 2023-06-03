@@ -35,5 +35,9 @@ export const typeDefs = `#graphql
     updatePassword(oldPassword: String, newPassword:String): User
 
     createMovie(movieName: String, description: String, directorName: String, releaseDate: String): Movie!
+
+    updateMovie(movieId: String, movieName: String, description: String): Movie!
+
+    deleteMovieById(movieId: String): Movie
   }
 `;

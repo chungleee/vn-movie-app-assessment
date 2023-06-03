@@ -107,6 +107,68 @@ const MovieMutations = {
 			return error;
 		}
 	},
+	updateMovie: async (parent, { movieId, ...args }, { user }) => {
+		try {
+			if (!user) throw new GraphQLError("Please log in");
+
+			let fieldsToUpdate = {};
+			for (let key in args) {
+				console.log("key", key);
+				if (args[key]) {
+					fieldsToUpdate[key] = args[key];
+				}
+			}
+
+			const movie = await prisma.movie.findUnique({
+				where: { id: parseInt(movieId) },
+			});
+
+			if (movie.movieOwnerId !== user.id) {
+				throw new GraphQLError("You are not authorized");
+			}
+
+			const updatedMovie = await prisma.movie.update({
+				where: {
+					id: parseInt(movieId),
+				},
+				data: {
+					...fieldsToUpdate,
+				},
+				include: {
+					movieOwner: true,
+				},
+			});
+
+			return updatedMovie;
+		} catch (error) {
+			return error;
+		}
+	},
+	deleteMovieById: async (parent, { movieId }, { user }) => {
+		try {
+			if (!user) throw new GraphQLError("Please log in");
+
+			console.log(user);
+
+			const movie = await prisma.movie.findUnique({
+				where: { id: parseInt(movieId) },
+			});
+
+			if (movie.movieOwnerId !== user.id) {
+				throw new GraphQLError("You are not authorized");
+			}
+
+			const deletedMovie = await prisma.movie.delete({
+				where: { id: parseInt(movieId) },
+			});
+
+			if (!deletedMovie) throw new GraphQLError("Movie not found");
+
+			return deletedMovie;
+		} catch (error) {
+			return error;
+		}
+	},
 };
 
 export const resolvers = {
